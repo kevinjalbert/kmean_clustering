@@ -16,9 +16,9 @@ This program takes advantage of the following [Python 2.7](http://www.python.org
 
 #Execution
 1. Download the source code and place it into a directory of choice.
-2. Execute using the following command ```python kmean_clustering [options]```
+2. Execute using the following command ```python kmean_clustering.py [options]```
 
 #Options
-To see a list of the options run the following command ```python kmean_clustering -h```
+To see a list of the options run the following command ```python kmean_clustering.py -h```
 
 All the options are detailed in the [Options](https://github.com/kevinjalbert/kmean_clustering/wiki/Options "Options") page.
