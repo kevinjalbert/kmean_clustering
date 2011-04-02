@@ -208,7 +208,7 @@ if __name__ == '__main__':
   # Define the argument options to be parsed
   parser = argparse.ArgumentParser(
       description = 'kmean clustering algorithm <https://github.com/kevinjalbert/kmean_clustering>',
-      version = 'kmean_clustering 0.1.0',
+      version = 'kmean_clustering 0.2.0',
       usage = 'python kmean_clustering.py [OPTIONS]')
   parser.add_argument(
       '--verbose',

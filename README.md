@@ -13,6 +13,7 @@ This program takes advantage of the following [Python 2.7](http://www.python.org
 
 * [numpy](http://numpy.scipy.org/ "numpy")
 * [matplotlib](http://matplotlib.sourceforge.net/ "matplotlib")
+* _The python command is linked to the 2.7 version of Python_
 
 #Execution
 1. Download the source code and place it into a directory of choice.
