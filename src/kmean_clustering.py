@@ -9,7 +9,6 @@ import matplotlib
 matplotlib.use('GTKAgg') # For linux gtk
 from matplotlib import pyplot
 import argparse
-import copy
 
 userArgs = None
 
@@ -61,19 +60,19 @@ class kmeanClustering():
 
       pyplot.draw()
 
-  def graphMovement(self, allMovement):
-    """Graphs the sum of the centroid movements in a bar graph.
+  def graphRSS(self, allRSS):
+    """Graphs the Residual Sum of Squares (RSS) of the clusters in a bar graph.
 
     Args:
-      allMovement: A list of the sum of centroid movements
+      allRSS: A list of the RSS from the clusters
     """
-    # Graph the movement
+    # Graph the RSS
     pyplot.figure(1)
-    xlocations = numpy.array(range(len(allMovement)))
-    pyplot.bar(xlocations, allMovement)
-    pyplot.title("Sum Movement of Centroids")
-    pyplot.xlabel('Iteration')
-    pyplot.ylabel("Distance")
+    xlocations = numpy.array(range(len(allRSS)))
+    pyplot.bar(xlocations, allRSS)
+    pyplot.title("RSS of Clusters")
+    pyplot.xlabel("Iteration")
+    pyplot.ylabel("Value")
     pyplot.draw()
 
   def pointsBestCluster(self, centroids, dataPoint):
@@ -135,28 +134,23 @@ class kmeanClustering():
 
     return clusters
 
-  def getMovement(self, centroids, lastCentroids):
-    """Calculates the sum of the movements between the last centroid position
-    to that of the new centroid positions.
+  def getClusterRSS(self, cluster, centroid):
+    """Calculates the cluster's Residual Sum of Squares (RSS)
 
     Args:
-      centroid: The list of the current centroids
-      lastCentroids: The list of the previous centroids
-
-    Return:
-      The sum of the total movement between the last centroids to that of the
-        new centroids
+      cluster: The list of data points of one cluster
+      centroid: The centroid point of the corresponding cluster
     """
-    movement = 0
-    for i in range(len(centroids)):
-      movement += numpy.linalg.norm(centroids[i]-lastCentroids[i])
-    return movement
+    sumRSS = 0
+    for i in range(len(cluster)):
+      sumRSS += pow(abs(numpy.linalg.norm(cluster[i]-centroid)), 2)
+    return sumRSS
 
   def solve(self, dataPoints, k):
     """Iteratively clusters the dataPoints into the most appropriate cluster
     based on the centroid's distance. Each centroid's position is updated to
-    the new mean of the cluster on each iteration. When no movement is detected
-    the best cluster configuration is found.
+    the new mean of the cluster on each iteration. When the RSS doesn't change
+    anymore then the best cluster configuration is found.
 
     Args:
       dataPoints: The set of random data points to be clustered
@@ -166,29 +160,34 @@ class kmeanClustering():
     centroids = numpy.random.randn(k, 2)
     clusters = self.configureClusters(centroids, dataPoints)
 
-    # Loop till no more movement
-    allMovement = []
-    movement = True
-    while (movement):
-      lastCentroids = copy.copy(centroids)
+    # Loop till algorithm is done
+    allRSS = []
+    notDone = True
+    lastRSS = 0
+    while (notDone):
+      # Find Residual Sum of Squares of the clusters
+      clustersRSS = []
+      for i in range(len(clusters)):
+        clustersRSS.append(self.getClusterRSS(clusters[i], centroids[i]) / len(dataPoints))
+      currentRSS = sum(clustersRSS)
+      allRSS.append(currentRSS)
+      print "RSS", currentRSS
+
+      # See if the kmean algorithm has converged
+      if (currentRSS == lastRSS):
+        notDone = False
+      else:
+        lastRSS = currentRSS
 
       # Update each of the centroids to the new mean location
       for i in range(len(centroids)):
         centroids[i] = self.newCentroid(clusters[i])
 
-      centroidMovement = self.getMovement(centroids, lastCentroids)
-      print "Movement", centroidMovement
-      allMovement.append(centroidMovement)
-
-      if (centroidMovement == 0):
-        movement = False
-      else:
-        lastCentroidtMovement = centroidMovement
-
+      # Reconfigure the clusters to the new centroids
       clusters = self.configureClusters(centroids, dataPoints)
-      self.graphClusters(clusters, centroids)
 
-    self.graphMovement(allMovement)
+      self.graphClusters(clusters, centroids)
+    self.graphRSS(allRSS)
 
 def main():
   """Generate the random points and starts the kmean clustering algorithm.
