@@ -23,17 +23,18 @@ class kmeanClustering():
   """
 
   def __init__(self):
+    """Default constructor.
+    """
     pass
 
-  def graph(self, clusters, centroids):
-    """Graphs the clusters and centroids in a matplotlib plot.
+  def graphClusters(self, clusters, centroids):
+    """Graphs the clusters and centroids in a scatter plot.
 
     Args:
       clusters: The clusters and their dataPoints
       centroids: The list of centroids
     """
     colors = ['r', 'b', 'g', 'c', 'm', 'y']
-    markers = ['.', ',', 'x', '+', '_', '|']
     pyplot.hold(False)
     for i in range(len(centroids)):
 
@@ -44,14 +45,36 @@ class kmeanClustering():
         x.append(clusters[i][j][0])
         y.append(clusters[i][j][1])
 
+      # Graph the clustering
+      pyplot.figure(0)
+      pyplot.title("K Mean Clustering")
+      pyplot.xlabel("X-Coordinate")
+      pyplot.ylabel("Y-Coordinate")
+
       # Plot the clusters
       pyplot.hold(True)
-      pyplot.plot(x, y, markers[i%6], color=colors[i%6])
+      pyplot.plot(x, y, '.', color=colors[i%6], markersize=3)
 
       # Plot the centroids
       pyplot.hold(True)
-      pyplot.plot(centroids[i][0], centroids[i][1], '*', color='black', markersize=10, alpha=0.3)
+      pyplot.plot(centroids[i][0], centroids[i][1], '.', color='k', markersize=8, alpha=0.6)
+
       pyplot.draw()
+
+  def graphMovement(self, allMovement):
+    """Graphs the sum of the centroid movements in a bar graph.
+
+    Args:
+      allMovement: A list of the sum of centroid movements
+    """
+    # Graph the movement
+    pyplot.figure(1)
+    xlocations = numpy.array(range(len(allMovement)))
+    pyplot.bar(xlocations, allMovement)
+    pyplot.title("Sum Movement of Centroids")
+    pyplot.xlabel('Iteration')
+    pyplot.ylabel("Distance")
+    pyplot.draw()
 
   def pointsBestCluster(self, centroids, dataPoint):
     """Takes the dataPoint and find the centroid index that it is closest too.
@@ -61,14 +84,15 @@ class kmeanClustering():
       dataPoint: The dataPoint that is going to be determined which centroid it
         is closest too
     """
-
     closestCentroid = None
     leastDistance = None
+
     for i in range(len(centroids)):
       distance = numpy.linalg.norm(dataPoint-centroids[i])
       if (distance < leastDistance or leastDistance == None):
         closestCentroid = i
         leastDistance = distance
+
     return closestCentroid
 
   def newCentroid(self, cluster):
@@ -78,7 +102,6 @@ class kmeanClustering():
     Args:
       cluster: A single cluster of data points, used to find the new centroid
     """
-
     # Split the cluster into x and y values
     x = []
     y = []
@@ -99,7 +122,6 @@ class kmeanClustering():
     Return:
         The set of new cluster configurations around the centroids
     """
-
     # Create the empty clusters
     clusters = []
     for i in range(len(centroids)):
@@ -125,8 +147,6 @@ class kmeanClustering():
       The sum of the total movement between the last centroids to that of the
         new centroids
     """
-
-    # Sum of distance between corresponding centroids
     movement = 0
     for i in range(len(centroids)):
       movement += numpy.linalg.norm(centroids[i]-lastCentroids[i])
@@ -142,12 +162,12 @@ class kmeanClustering():
       dataPoints: The set of random data points to be clustered
       k: The number of clusters
     """
-
     # Create the initial centroids and clusters
     centroids = numpy.random.randn(k, 2)
     clusters = self.configureClusters(centroids, dataPoints)
 
     # Loop till no more movement
+    allMovement = []
     movement = True
     while (movement):
       lastCentroids = copy.copy(centroids)
@@ -158,6 +178,7 @@ class kmeanClustering():
 
       centroidMovement = self.getMovement(centroids, lastCentroids)
       print "Movement", centroidMovement
+      allMovement.append(centroidMovement)
 
       if (centroidMovement == 0):
         movement = False
@@ -165,12 +186,13 @@ class kmeanClustering():
         lastCentroidtMovement = centroidMovement
 
       clusters = self.configureClusters(centroids, dataPoints)
-      self.graph(clusters, centroids)
+      self.graphClusters(clusters, centroids)
+
+    self.graphMovement(allMovement)
 
 def main():
   """Generate the random points and starts the kmean clustering algorithm.
   """
-
   # Generate random points
   dataPoints = numpy.random.randn(int(userArgs.points), 2)
 
@@ -212,3 +234,6 @@ if __name__ == '__main__':
   userArgs = parser.parse_args()
 
   main()
+
+  print "Press any key to exit..."
+  raw_input()
