@@ -9,6 +9,7 @@ import matplotlib
 matplotlib.use('GTKAgg') # For linux gtk
 from matplotlib import pyplot
 import argparse
+import copy
 
 userArgs = None
 
@@ -44,12 +45,13 @@ class kmeanClustering():
         y.append(clusters[i][j][1])
 
       # Plot the clusters
-      pyplot.plot(x, y, markers[i%6], color=colors[i%6])
       pyplot.hold(True)
+      pyplot.plot(x, y, markers[i%6], color=colors[i%6])
 
       # Plot the centroids
+      pyplot.hold(True)
       pyplot.plot(centroids[i][0], centroids[i][1], '*', color='black', markersize=10, alpha=0.3)
-      pyplot.draw
+      pyplot.draw()
 
   def pointsBestCluster(self, centroids, dataPoint):
     """Takes the dataPoint and find the centroid index that it is closest too.
@@ -69,6 +71,67 @@ class kmeanClustering():
         leastDistance = distance
     return closestCentroid
 
+  def newCentroid(self, cluster):
+    """Finds the new centroid location given the cluster of data points. The
+    mean of all the data points is the new location of the centroid.
+
+    Args:
+      cluster: A single cluster of data points, used to find the new centroid
+    """
+
+    # Split the cluster into x and y values
+    x = []
+    y = []
+    for i in range(len(cluster)):
+      x.append(cluster[i][0])
+      y.append(cluster[i][1])
+
+    return [numpy.mean(x), numpy.mean(y)]
+
+  def configureClusters(self, centroids, dataPoints):
+    """Creates a new configuration of clusters for the given set of dataPoints
+    and centroids.
+
+    Args:
+      centroids: The list of centroids
+      dataPoints: The set of random data points to be clustered
+
+    Return:
+        The set of new cluster configurations around the centroids
+    """
+
+    # Create the empty clusters
+    clusters = []
+    for i in range(len(centroids)):
+      cluster = []
+      clusters.append(cluster)
+
+    # For all the dataPoints, place them in initial clusters
+    for i in range(int(userArgs.points)):
+      idealCluster = self.pointsBestCluster(centroids, dataPoints[i])
+      clusters[idealCluster].append(dataPoints[i])
+
+    return clusters
+
+  def getMovement(self, centroids, lastCentroids):
+    """Calculates the sum of the movements between the last centroid position
+    to that of the new centroid positions.
+
+    Args:
+      centroid: The list of the current centroids
+      lastCentroids: The list of the previous centroids
+
+    Return:
+      The sum of the total movement between the last centroids to that of the
+        new centroids
+    """
+
+    # Sum of distance between corresponding centroids
+    movement = 0
+    for i in range(len(centroids)):
+      movement += numpy.linalg.norm(centroids[i]-lastCentroids[i])
+    return movement
+
   def solve(self, dataPoints, k):
     """Iteratively clusters the dataPoints into the most appropriate cluster
     based on the centroid's distance. Each centroid's position is updated to
@@ -80,22 +143,29 @@ class kmeanClustering():
       k: The number of clusters
     """
 
-    # Create the empty clusters
-    clusters = []
-    for i in range(k):
-      cluster = []
-      clusters.append(cluster)
-
-    # Create the centroids (random position)
+    # Create the initial centroids and clusters
     centroids = numpy.random.randn(k, 2)
+    clusters = self.configureClusters(centroids, dataPoints)
 
-    # For all the dataPoints, place them in initial clusters
-    for i in range(int(userArgs.points)):
-      idealCluster = self.pointsBestCluster(centroids, dataPoints[i])
-      clusters[idealCluster].append(dataPoints[i])
+    # Loop till no more movement
+    movement = True
+    while (movement):
+      lastCentroids = copy.copy(centroids)
 
-    self.graph(clusters, centroids)
-    pass
+      # Update each of the centroids to the new mean location
+      for i in range(len(centroids)):
+        centroids[i] = self.newCentroid(clusters[i])
+
+      centroidMovement = self.getMovement(centroids, lastCentroids)
+      print "Movement", centroidMovement
+
+      if (centroidMovement == 0):
+        movement = False
+      else:
+        lastCentroidtMovement = centroidMovement
+
+      clusters = self.configureClusters(centroids, dataPoints)
+      self.graph(clusters, centroids)
 
 def main():
   """Generate the random points and starts the kmean clustering algorithm.
@@ -142,5 +212,3 @@ if __name__ == '__main__':
   userArgs = parser.parse_args()
 
   main()
-
-  raw_input()
