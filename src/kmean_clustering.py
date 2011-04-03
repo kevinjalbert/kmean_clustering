@@ -12,7 +12,7 @@ import argparse
 
 userArgs = None
 
-class kmeanClustering():
+class KMeanClustering():
 
   """Class that solves the problem of clustering a set of random data points
   into k clusters.
@@ -26,7 +26,7 @@ class kmeanClustering():
     """
     pass
 
-  def graphClusters(self, clusters, centroids):
+  def graph_clusters(self, clusters, centroids):
     """Graphs the clusters and centroids in a scatter plot.
 
     Args:
@@ -60,7 +60,7 @@ class kmeanClustering():
 
       pyplot.draw()
 
-  def graphRSS(self, allRSS):
+  def graph_RSS(self, allRSS):
     """Graphs the Residual Sum of Squares (RSS) of the clusters in a bar graph.
 
     Args:
@@ -75,7 +75,7 @@ class kmeanClustering():
     pyplot.ylabel("Value")
     pyplot.draw()
 
-  def pointsBestCluster(self, centroids, dataPoint):
+  def points_best_cluster(self, centroids, dataPoint):
     """Takes the dataPoint and find the centroid index that it is closest too.
 
     Args:
@@ -94,7 +94,7 @@ class kmeanClustering():
 
     return closestCentroid
 
-  def newCentroid(self, cluster):
+  def new_centroid(self, cluster):
     """Finds the new centroid location given the cluster of data points. The
     mean of all the data points is the new location of the centroid.
 
@@ -110,7 +110,7 @@ class kmeanClustering():
 
     return [numpy.mean(x), numpy.mean(y)]
 
-  def configureClusters(self, centroids, dataPoints):
+  def configure_clusters(self, centroids, dataPoints):
     """Creates a new configuration of clusters for the given set of dataPoints
     and centroids.
 
@@ -129,12 +129,12 @@ class kmeanClustering():
 
     # For all the dataPoints, place them in initial clusters
     for i in range(int(userArgs.points)):
-      idealCluster = self.pointsBestCluster(centroids, dataPoints[i])
+      idealCluster = self.points_best_cluster(centroids, dataPoints[i])
       clusters[idealCluster].append(dataPoints[i])
 
     return clusters
 
-  def getClusterRSS(self, cluster, centroid):
+  def get_cluster_RSS(self, cluster, centroid):
     """Calculates the cluster's Residual Sum of Squares (RSS)
 
     Args:
@@ -158,7 +158,7 @@ class kmeanClustering():
     """
     # Create the initial centroids and clusters
     centroids = numpy.random.randn(k, 2)
-    clusters = self.configureClusters(centroids, dataPoints)
+    clusters = self.configure_clusters(centroids, dataPoints)
 
     # Loop till algorithm is done
     allRSS = []
@@ -168,7 +168,7 @@ class kmeanClustering():
       # Find Residual Sum of Squares of the clusters
       clustersRSS = []
       for i in range(len(clusters)):
-        clustersRSS.append(self.getClusterRSS(clusters[i], centroids[i]) / len(dataPoints))
+        clustersRSS.append(self.get_cluster_RSS(clusters[i], centroids[i]) / len(dataPoints))
       currentRSS = sum(clustersRSS)
       allRSS.append(currentRSS)
       print "RSS", currentRSS
@@ -181,13 +181,13 @@ class kmeanClustering():
 
       # Update each of the centroids to the new mean location
       for i in range(len(centroids)):
-        centroids[i] = self.newCentroid(clusters[i])
+        centroids[i] = self.new_centroid(clusters[i])
 
       # Reconfigure the clusters to the new centroids
-      clusters = self.configureClusters(centroids, dataPoints)
+      clusters = self.configure_clusters(centroids, dataPoints)
 
-      self.graphClusters(clusters, centroids)
-    self.graphRSS(allRSS)
+      self.graph_clusters(clusters, centroids)
+    self.graph_RSS(allRSS)
 
 def main():
   """Generate the random points and starts the kmean clustering algorithm.
@@ -199,7 +199,7 @@ def main():
   pyplot.ion()
 
   # Cluster data using kmean clustering
-  kmean = kmeanClustering()
+  kmean = KMeanClustering()
   kmean.solve(dataPoints, int(userArgs.k))
 
 # If this module is ran as main
