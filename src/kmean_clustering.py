@@ -211,12 +211,6 @@ if __name__ == '__main__':
       version = 'kmean_clustering 0.2.0',
       usage = 'python kmean_clustering.py [OPTIONS]')
   parser.add_argument(
-      '--verbose',
-      action='store_true',
-      default=False,
-      dest='verbose',
-      help='Displays additional information during execution')
-  parser.add_argument(
       '-k',
       action='store',
       default=3,
