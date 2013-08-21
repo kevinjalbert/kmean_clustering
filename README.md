@@ -23,3 +23,7 @@ This program takes advantage of the following [Python 2.7](http://www.python.org
 To see a list of the options run the following command ```python kmean_clustering.py -h```
 
 All the options are detailed in the [Options](https://github.com/kevinjalbert/kmean_clustering/wiki/Options "Options") page.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/kevinjalbert/kmean_clustering/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
